@@ -388,13 +388,36 @@ public void mostrarData(){
             JOptionPane.showMessageDialog(null, "debe seleccionar una fila");
         }
     }//GEN-LAST:event_DataTable2MouseClicked
+public boolean checkExistence(String id){
+    Conn cn = new Conn();
+        Connection connection = cn.MakeConnection();
+        String sql;
+         sql = "select * from materiales where id ="+idToUpdate;
+        try {
+        
+          Statement st = connection.createStatement();
+          ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {                
+              
+                if(  rs.getString("product_stock").equals("0")){
+                    
+                     return false;
+                }
+                
+            }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al eliminar" + e);
+    }
 
+    return true;
+}
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
        Conn cn = new Conn();
         Connection connection = cn.MakeConnection();
         String sql = "DELETE from materiales where id =?";
         try {
-            PreparedStatement pst = connection.prepareStatement(sql);
+            if(!checkExistence(idToUpdate)){
+                 PreparedStatement pst = connection.prepareStatement(sql);
             pst.setString(1, idToUpdate);
             int result = pst.executeUpdate();
             if (result > 0) {
@@ -405,6 +428,10 @@ public void mostrarData(){
             mostrarData();
             pst.close();
             connection.close();
+            }
+            else{
+                 JOptionPane.showMessageDialog(null, "No se puede eliminar si tiene productos en existencia");
+            }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al eliminar: " +e);
         }
